@@ -1,1 +1,3 @@
-$('#container').text("Hello World!");
+//$('#container').text("Hello World!");
+
+//$('#myCanvas')
