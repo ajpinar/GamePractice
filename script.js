@@ -1,36 +1,50 @@
 //$('#container').text("Hello World!");
 
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+var game = new Phaser.Game(800, 500, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
 
-    //game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
     game.load.spritesheet('dude', 'assets/Wrestler_1.png', 67, 92);
-    game.load.image('background', 'assets/background2.png');
+    game.load.image('background', 'assets/Ring_1.png');
+
+    game.load.crossOrigin = 'anonymous';
+
+    game.load.image('platform', 'http://examples.phaser.io/assets/sprites/platform.png');
 
 }
 
 var player;
-var facing = 'left';
+var moving = 'no';
 var jumpTimer = 0;
 var strikeTimer = 0;
 var strikeDelay = 300;
 var cursors;
 var jumpButton;
 var bg;
+var mat;
+var platforms;
 
 function create() {
 
-    game.physics.startSystem(Phaser.Physics.ARCADE);
+    //game.physics.startSystem(Phaser.Physics.ARCADE);
 
     game.time.desiredFps = 30;
 
-    bg = game.add.tileSprite(0, 0, 800, 600, 'background');
+    bg = game.add.tileSprite(-350, -120, 672, 425, 'background');
+    bg.scale.setTo(2.2,2.2);
 
-    game.physics.arcade.gravity.y = 250;
 
-    player = game.add.sprite(32, 500, 'dude');
-    game.physics.enable(player, Phaser.Physics.ARCADE);
+    player = game.add.sprite(32, 32, 'dude');
+    player.scale.setTo(1.8,1.8);
+    game.physics.arcade.enable(player);
+	player.body.gravity.y = 250;
+    platforms = game.add.physicsGroup();
+
+    platforms.create(0, 350, 'platform');
+
+    platforms.setAll('body.immovable', true);
+    platforms.setAll('scale.x',20);
+    platforms.setAll('visible', false);
 
     player.body.bounce.y = 0.2;
     player.body.collideWorldBounds = true;
@@ -50,8 +64,7 @@ function create() {
 }
 
 function update() {
-
-    // game.physics.arcade.collide(player, layer);
+	game.physics.arcade.collide(player, platforms);
 
     player.body.velocity.x = 0;
 
@@ -59,31 +72,27 @@ function update() {
     {
         player.body.velocity.x = -150;
 
-        if (facing != 'left')
-        {
             player.animations.play('left');
-            facing = 'left';
-        }
+            moving = 'yes';
     }
     else if (cursors.right.isDown)
     {
         player.body.velocity.x = 150;
 
-        if (facing != 'right')
-        {
+
             player.animations.play('right');
-            facing = 'right';
-        }
+            moving = 'yes';
+
     }
     else
     {
-        if (facing != 'idle')
+        if (moving != 'no')
         {
             player.animations.stop();
 
             player.frame = 0;
 
-            facing = 'idle';
+            moving = 'no';
         }
     }
 
@@ -116,4 +125,3 @@ function render () {
     game.debug.bodyInfo(player, 16, 24);
 
 }
-
